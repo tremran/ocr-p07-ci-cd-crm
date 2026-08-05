@@ -5,9 +5,6 @@ permissions:
   contents: read
 on: 
   workflow_dispatch:
-    branches: [ci-tests]
-  push:
-    branches: [main, ci-tests]
 
 env:
   JAVA_VERSION: '17' # used in back app
@@ -32,11 +29,7 @@ jobs:
       - name: back - tests auto 
         run: cd back && chmod +x ./gradlew && ./gradlew test
 
-  # back-lint:
-
-  ## lint
-
-
+# lint
 
 # construction
 
