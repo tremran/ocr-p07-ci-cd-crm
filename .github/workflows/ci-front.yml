@@ -5,7 +5,7 @@ name: CI front
 permissions:
   contents: read
 on: 
-  workflow_dispatch:
+  workflow_call:
 
 env:
   NODE_VERSION: '24' # LTS
@@ -32,4 +32,4 @@ jobs:
         # commandes en une ligne pour gestion du cache
         run: cd front && npm ci && npx ng test --code-coverage --watch=false --browsers=ChromeHeadless
     # front-lint:
-    
+
