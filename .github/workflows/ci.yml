@@ -13,9 +13,9 @@ on:
     branches: [main]
 
 env:
-  NODE_VERSION: 24 # LTS
-  JAVA_VERSION: 21 # LTS compatible with gradle 8.7
-  GRADLE_VERSION: 8.7 # version used in back app
+  NODE_VERSION: '24' # LTS
+  JAVA_VERSION: '21' # LTS compatible with gradle 8.7
+  GRADLE_VERSION: '8.7' # version used in back app
 
 # validation
 jobs:
@@ -26,10 +26,10 @@ jobs:
     steps:
       - name: checkout pour tests front
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1
-      - name: installation node ${NODE_VERSION}
+      - name: installation node ${{env.NODE_VERSION}}
         uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
         with:
-          node-version: ${NODE_VERSION}
+          node-version: ${{env.NODE_VERSION}}
           # cache: 'npm' # todo : vérifier si c'est bien le cache entre chaque run 
         # commandes en une ligne pour gestion du cache
       - name: front - tests auto
@@ -43,15 +43,15 @@ jobs:
     steps:
       - name : checkout pour tests back
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1
-      - name: install java ${JAVA_VERSION}
+      - name: install java ${{env.JAVA_VERSION}}
         uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
         with:
           distribution: temurin
-          java-version: ${JAVA_VERSION}
-      - name: configuration gradle ${GRADLE_VERSION}
-        uses: actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
+          java-version: ${{env.JAVA_VERSION}}
+      - name: configuration gradle ${{env.GRADLE_VERSION}}
+        uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
         with:
-          gradle-version: ${GRADLE_VERSION}
+          gradle-version: ${{env.GRADLE_VERSION}}
       - name: back - tests auto
         run: cd back && chmod +x ./gradlew && ./gradlew test
 
