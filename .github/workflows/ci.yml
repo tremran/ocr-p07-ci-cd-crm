@@ -29,6 +29,8 @@ jobs:
         with:
           node-version: ${{env.NODE_VERSION}}
           cache: 'npm' # cache entre chaque run 
+          # c'est un sous dossier il faut lui préciser le fichier à vérifier pour les caches hit
+          cache-dependency-path: front/package-lock.json
       - name: installation chrome
         uses: browser-actions/setup-chrome@2e1d749697dd1612b833dba4a722266286fbefcd # v2.1.2
       - name: checkout pour tests front
