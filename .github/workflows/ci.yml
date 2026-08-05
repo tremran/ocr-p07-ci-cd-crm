@@ -1,7 +1,7 @@
 name: CI
 # TODO: activer le cache
 
-# security : par défaut droit de lecture uniquement
+# security : par défaut droit de lecture uniquement ( moindre privilège )
 permissions:
   contents: read
 on: 
@@ -30,13 +30,13 @@ jobs:
         uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
         with:
           node-version: ${{env.NODE_VERSION}}
-          # cache: 'npm' # todo : vérifier si c'est bien le cache entre chaque run 
+          cache: 'npm' # cache entre chaque run 
       # pas d'action de certified creator
       - name: installation chrome
         run: apt-get update && apt-get install google-chrome-stable
-      - name: front - tests auto
+      - name: front - tests auto + code coverage
         # commandes en une ligne pour gestion du cache
-        run: cd front && npm ci && npm run test
+        run: cd front && npm ci && npx ng test --code-coverage --watch= false
     # front-lint:
 
   ## tests back
