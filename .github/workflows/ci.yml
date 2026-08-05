@@ -1,0 +1,70 @@
+name: CI
+# TODO: activer le cache
+
+# security : par défaut droit de lecture uniquement
+permissions:
+  contents: read
+on: 
+  workflow_dispatch:
+    branches: [ci-tests]
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  NODE_VERSION: 24 # LTS
+  JAVA_VERSION: 21 # LTS compatible with gradle 8.7
+  GRADLE_VERSION: 8.7 # version used in back app
+
+# validation
+jobs:
+  ## tests front
+  front-tests:
+    runs-on: ubuntu-24.04
+    # security : utiliser le hash à la place d'un tag mutable
+    steps:
+      - name: checkout pour tests front
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1
+      - name: installation node $NODE_VERSION
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version: NODE_VERSION
+          # cache: 'npm' # todo : vérifier si c'est bien le cache entre chaque run 
+        # commandes en une ligne pour gestion du cache
+      - name: front - tests auto
+        run: cd front && npm ci && npm run test
+    # front-lint:
+
+  ## tests back
+  back-tests:
+    runs-on: ubuntu-24.04
+    # security : utiliser le hash à la place d'un tag mutable
+    steps:
+      - name : checkout pour tests back
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1
+      - name: install java $JAVA_VERSION
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
+        with:
+          distribution: temurin
+          java-version: JAVA_VERSION
+      - name: configuration gradle $GRADLE_VERSION
+        uses: actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
+        with:
+          gradle-version: GRADLE_VERSION
+      - name: back - tests auto
+        run: cd back && chmod +x ./gradlew && ./gradlew test
+
+  # back-lint:
+
+  ## lint
+
+
+
+# construction
+
+## publier l'image sur github
+
+
+# déploiement
+## manuel
