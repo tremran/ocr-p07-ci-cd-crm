@@ -9,8 +9,8 @@ on:
   push:
     branches: [ci-tests]
     paths:
-      - './front'
-      - './.github'
+      - 'front/**'
+      - '.github/**'
 
 env:
   NODE_VERSION: '24' # LTS
