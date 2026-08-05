@@ -31,9 +31,8 @@ jobs:
         with:
           node-version: ${{env.NODE_VERSION}}
           cache: 'npm' # cache entre chaque run 
-      # pas d'action de certified creator
       - name: installation chrome
-        run: apt-get update && apt-get install google-chrome-stable
+        uses: browser-actions/setup-chrome@2e1d749697dd1612b833dba4a722266286fbefcd # v2.1.2
       - name: front - tests auto + code coverage
         # commandes en une ligne pour gestion du cache
         run: cd front && npm ci && npx ng test --code-coverage --watch= false
