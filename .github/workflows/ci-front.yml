@@ -1,4 +1,4 @@
-name: CI
+name: CI front
 # TODO: activer le cache
 
 # security : par défaut droit de lecture uniquement ( moindre privilège )
@@ -6,16 +6,9 @@ permissions:
   contents: read
 on: 
   workflow_dispatch:
-    branches: [ci-tests]
-  push:
-    branches: [main, ci-tests]
-  pull_request:
-    branches: [main]
 
 env:
   NODE_VERSION: '24' # LTS
-  JAVA_VERSION: '17' # used in back app
-  GRADLE_VERSION: '8.7' # version used in back app
 
 # validation
 jobs:
@@ -39,37 +32,4 @@ jobs:
         # commandes en une ligne pour gestion du cache
         run: cd front && npm ci && npx ng test --code-coverage --watch=false --browsers=ChromeHeadless
     # front-lint:
-
-  ## tests back
-  # back-tests:
-  #   runs-on: ubuntu-26.04
-  #   # security : utiliser le hash à la place d'un tag mutable
-  #   steps:
-  #     - name : checkout pour tests back
-  #       uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1
-  #     - name: install java ${{env.JAVA_VERSION}}
-  #       uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
-  #       with:
-  #         distribution: temurin
-  #         java-version: ${{env.JAVA_VERSION}}
-  #     - name: configuration gradle ${{env.GRADLE_VERSION}}
-  #       # security : verified creator
-  #       uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
-  #       with:
-  #         gradle-version: ${{env.GRADLE_VERSION}}
-  #     - name: back - tests auto
-  #       run: cd back && chmod +x ./gradlew && ./gradlew test
-
-  # back-lint:
-
-  ## lint
-
-
-
-# construction
-
-## publier l'image sur github
-
-
-# déploiement
-## manuel
+    
