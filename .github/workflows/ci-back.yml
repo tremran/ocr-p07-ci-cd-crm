@@ -13,6 +13,7 @@ env:
   JAVA_VERSION: '17' # used in back app
   GRADLE_VERSION: '8.7' # version used in back app
 
+jobs:
   # tests back
   back-tests:
     runs-on: ubuntu-26.04
