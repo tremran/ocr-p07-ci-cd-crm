@@ -28,14 +28,14 @@ jobs:
         uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
         with:
           node-version: ${{env.NODE_VERSION}}
-          # cache: 'npm' # cache entre chaque run 
+          cache: 'npm' # cache entre chaque run 
       - name: installation chrome
         uses: browser-actions/setup-chrome@2e1d749697dd1612b833dba4a722266286fbefcd # v2.1.2
       - name: checkout pour tests front
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1
       - name: front - tests auto + code coverage
         # commandes en une ligne pour gestion du cache
-        run: cd front && npm ci && npx ng test --code-coverage --watch=false
+        run: cd front && npm ci && npx ng test --code-coverage --watch=false --browsers=ChromeHeadless
     # front-lint:
 
   ## tests back
