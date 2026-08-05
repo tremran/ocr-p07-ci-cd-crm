@@ -8,8 +8,8 @@ on:
   push:
     branches: [ci-tests]
     paths:
-      - './back'
-      - './.github'
+      - './back/**'
+      - './.github/**'
 
 env:
   JAVA_VERSION: '17' # used in back app
