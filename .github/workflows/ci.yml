@@ -28,7 +28,7 @@ jobs:
         uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
         with:
           node-version: ${{env.NODE_VERSION}}
-          cache: 'npm' # cache entre chaque run 
+          # cache: 'npm' # cache entre chaque run 
           # c'est un sous dossier il faut lui préciser le fichier à vérifier pour les caches hit
           # cache-dependency-path: front/package-lock.json
       - name: installation chrome
