@@ -5,6 +5,11 @@ permissions:
   contents: read
 on: 
   workflow_call:
+  push:
+    branches: [ci-tests]
+    paths:
+      - './back'
+      - './.github'
 
 env:
   JAVA_VERSION: '17' # used in back app

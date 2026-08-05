@@ -6,6 +6,11 @@ permissions:
   contents: read
 on: 
   workflow_call:
+  push:
+    branches: [ci-tests]
+    paths:
+      - './front'
+      - './.github'
 
 env:
   NODE_VERSION: '24' # LTS
