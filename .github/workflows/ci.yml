@@ -2,6 +2,8 @@ name: CI
 # TODO: activer le cache
 
 # TODO : reprendre l'ordre Build > Test > Quality > Package
+# TODO : utiliser le plugin gradle pour sonarqube back 
+  #  Warning: Gradle project detected. Sonar recommends using the SonarQube plugin for Gradle during the build process instead of using this GitHub Action to get more accurate results
 
 # security : par défaut droit de lecture uniquement ( moindre privilège )
 permissions:
@@ -51,8 +53,8 @@ jobs:
           overwrite: true
 
   sonarqube-cloud-back:
-    name: SonarQube cloud scan Back
-    # if: ${{ github.ref == 'refs/heads/main' }}
+    name: SonarQube cloud scan - Back
+    if: ${{ github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-26.04
     needs: [tests-back]
     continue-on-error: true
@@ -128,7 +130,7 @@ jobs:
 
   sonarqube-cloud-front:
     name: SonarQube cloud scan - Front
-    if: ${{ github.ref == 'refs/heads/main' }}
+    # if: ${{ github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-26.04
     needs: [tests-front]
     continue-on-error: true
