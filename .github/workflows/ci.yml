@@ -2,6 +2,8 @@ name: CI
 # TODO: activer le cache
 
 # TODO : reprendre l'ordre Build > Test > Quality > Package
+# TODO : utiliser le plugin gradle pour sonarqube back 
+  #  Warning: Gradle project detected. Sonar recommends using the SonarQube plugin for Gradle during the build process instead of using this GitHub Action to get more accurate results
 
 # security : par défaut droit de lecture uniquement ( moindre privilège )
 permissions:
@@ -43,12 +45,55 @@ jobs:
         run: cd back && chmod +x ./gradlew && ./gradlew clean test
 
       - name: back - publication des rapports de couverture et de test
-        if: success()
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: test-results-back
           path: back/build/reports/
           overwrite: true
+
+  sonarqube-cloud-back:
+    name: SonarQube cloud scan - Back
+    if: ${{ github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-26.04
+    needs: [tests-back]
+    continue-on-error: true
+    env:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}
+      SONAR_ORGANIZATION: ${{ secrets.SONAR_ORGANIZATION }}
+    steps:
+      # Récupère le code
+      - name: Checkout
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1
+
+      - name: install java ${{env.JAVA_VERSION}}
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
+        with:
+          distribution: temurin
+          java-version: ${{env.JAVA_VERSION}}
+          cache: gradle
+
+      - name: configuration gradle ${{env.GRADLE_VERSION}}
+        uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
+        with:
+          gradle-version: ${{env.GRADLE_VERSION}}
+
+      # Build, sans les tests 
+      - name: Build pour sonarcube
+        run: cd back && chmod +x ./gradlew && ./gradlew clean build -x test
+
+      # Checks
+      - name: SonarQube Scan - back
+        uses: SonarSource/sonarqube-scan-action@22918119ff8e1ca75a623e15c8296b6ea4fbe28f # v8.2.1
+        with:
+          projectBaseDir: back
+          args: >
+            -Dsonar.projectKey=${{ env.SONAR_PROJECT_KEY }}
+            -Dsonar.organization=${{ env.SONAR_ORGANIZATION }}
+            -Dsonar.sources=src/main/java
+            -Dsonar.java.binaries=build/classes/java/main
+        env:
+          SONAR_TOKEN: ${{ env.SONAR_TOKEN }}
 
   # tests front
   tests-front:
@@ -74,13 +119,60 @@ jobs:
         # commandes en une ligne pour gestion du cache
         run: cd front && npm ci && npx ng test --code-coverage --watch=false --browsers=ChromeHeadless
 
-      - name: front - publication des rapports de couverture et de test
-        if: success()
+      - name: front - publication des sources
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: test-results-front
           path: front/coverage/
           overwrite: true
+
+      - name: front - publication des rapports de couverture et de test
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        with:
+          name: test-results-front
+          path: front/coverage/
+          overwrite: true
+
+  sonarqube-cloud-front:
+    name: SonarQube cloud scan - Front
+    if: ${{ github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-26.04
+    needs: [tests-front]
+    continue-on-error: true
+    env:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}
+      SONAR_ORGANIZATION: ${{ secrets.SONAR_ORGANIZATION }}
+    steps:
+      - name: installation node ${{env.NODE_VERSION}}
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version: ${{env.NODE_VERSION}}
+          # cache: 'npm' # cache entre chaque run 
+          # c'est un sous dossier il faut lui préciser le fichier à vérifier pour les caches hit
+          # cache-dependency-path: front/package-lock.json
+
+      - name: installation chrome
+        uses: browser-actions/setup-chrome@2e1d749697dd1612b833dba4a722266286fbefcd # v2.1.2
+
+      - name: checkout 
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1
+
+      - name: front - build
+        # commandes en une ligne pour gestion du cache
+        run: cd front && npm ci && npx ng build
+
+      # Checks
+      - name: SonarQube Scan - front
+        uses: SonarSource/sonarqube-scan-action@22918119ff8e1ca75a623e15c8296b6ea4fbe28f # v8.2.1
+        with:
+          projectBaseDir: front
+          args: >
+            -Dsonar.projectKey=${{ env.SONAR_PROJECT_KEY }}
+            -Dsonar.organization=${{ env.SONAR_ORGANIZATION }}
+            -Dsonar.sources=src
+        env:
+          SONAR_TOKEN: ${{ env.SONAR_TOKEN }}
 
   # récupération de la version
   release:
@@ -140,12 +232,32 @@ jobs:
             type=sha
             type=raw,value=${{ needs.release.outputs.new_version }}
 
-      - name: Build and push Docker image
+      - name: Build and push Docker standalone image
         uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
         with:
           context: .
           file: ./Dockerfile
           target: standalone
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Build and push Docker back image
+        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
+        with:
+          context: .
+          file: ./Dockerfile
+          target: back
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Build and push Docker front image
+        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
+        with:
+          context: .
+          file: ./Dockerfile
+          target: front
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
