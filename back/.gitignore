@@ -1,5 +1,6 @@
 # Created by https://www.toptal.com/developers/gitignore/api/gradle,java
 # Edit at https://www.toptal.com/developers/gitignore?templates=gradle,java
+application.properties
 
 ### Java ###
 # Compiled class file

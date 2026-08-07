@@ -17,10 +17,10 @@ RUN ./gradlew build
 
 FROM alpine:3.19 AS front
 
+RUN apk add caddy
+
 COPY --from=front-build /src/dist/microcrm/browser /app/front
 COPY misc/docker/Caddyfile /app/Caddyfile
-
-RUN apk add caddy
 
 WORKDIR /app
 
@@ -31,11 +31,10 @@ CMD ["/usr/sbin/caddy", "run"]
 
 FROM alpine:3.19 AS back
 
-COPY --from=back-build /src/build/libs/microcrm-0.0.1-SNAPSHOT.jar /app/back/microcrm-0.0.1-SNAPSHOT.jar
-
+WORKDIR /app
 RUN apk add openjdk21-jre-headless
 
-WORKDIR /app
+COPY --from=back-build /src/build/libs/microcrm-0.0.1-SNAPSHOT.jar /app/back/microcrm-0.0.1-SNAPSHOT.jar
 
 EXPOSE 4200
 
@@ -43,11 +42,12 @@ CMD ["java", "-jar", "/app/back/microcrm-0.0.1-SNAPSHOT.jar"]
 
 FROM alpine:3.19 AS standalone
 
-COPY --from=front / /
-COPY --from=back / /
+RUN apk add supervisor
+
 COPY misc/docker/supervisor.ini /app/supervisor.ini
 
-RUN apk add supervisor
+COPY --from=front / /
+COPY --from=back / /
 
 WORKDIR /app
 
