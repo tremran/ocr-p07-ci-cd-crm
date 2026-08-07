@@ -45,7 +45,7 @@ jobs:
         run: cd back && chmod +x ./gradlew && ./gradlew clean test
 
       - name: back - publication des rapports de couverture et de test
-        if: success()
+        if: ${{ success() }}
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: test-results-back
@@ -120,8 +120,16 @@ jobs:
         # commandes en une ligne pour gestion du cache
         run: cd front && npm ci && npx ng test --code-coverage --watch=false --browsers=ChromeHeadless
 
+      - name: front - publication des sources
+        if: ${{ success() }}
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        with:
+          name: test-results-front
+          path: front/coverage/
+          overwrite: true
+
       - name: front - publication des rapports de couverture et de test
-        if: success()
+        if: ${{ success() }}
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: test-results-front
@@ -227,12 +235,32 @@ jobs:
             type=sha
             type=raw,value=${{ needs.release.outputs.new_version }}
 
-      - name: Build and push Docker image
+      - name: Build and push Docker standalone image
         uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
         with:
           context: .
           file: ./Dockerfile
           target: standalone
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Build and push Docker back image
+        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
+        with:
+          context: .
+          file: ./Dockerfile
+          target: back
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Build and push Docker front image
+        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
+        with:
+          context: .
+          file: ./Dockerfile
+          target: front
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
