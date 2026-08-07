@@ -50,6 +50,50 @@ jobs:
           path: back/build/reports/
           overwrite: true
 
+  sonarqube-cloud-back:
+    name: SonarQube cloud scan Back
+    if: ${{ github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-26.04
+    needs: [tests-back]
+    continue-on-error: true
+    env:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}
+      SONAR_ORGANIZATION: ${{ secrets.SONAR_ORGANIZATION }}
+    steps:
+      # Récupère le code
+      - name: Checkout
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1
+
+      - name: install java ${{env.JAVA_VERSION}}
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
+        with:
+          distribution: temurin
+          java-version: ${{env.JAVA_VERSION}}
+          cache: gradle
+
+      - name: configuration gradle ${{env.GRADLE_VERSION}}
+        uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
+        with:
+          gradle-version: ${{env.GRADLE_VERSION}}
+
+      # Build, sans les tests 
+      - name: Build pour sonarcube
+        run: cd back && chmod +x ./gradlew && ./gradlew clean build -x test
+
+      # Checks
+      - name: SonarQube Scan - back
+        uses: SonarSource/sonarcloud-github-action@22918119ff8e1ca75a623e15c8296b6ea4fbe28f # v8.2.1
+        with:
+          projectBaseDir: back
+          args: >
+            -Dsonar.projectKey=${{ env.SONAR_PROJECT_KEY }}
+            -Dsonar.organization=${{ env.SONAR_ORGANIZATION }}
+            -Dsonar.sources=src/main/java
+            -Dsonar.java.binaries=build/classes/java/main
+        env:
+          SONAR_TOKEN: ${{ env.SONAR_TOKEN }}
+
   # tests front
   tests-front:
     name: Frontend - Tests
@@ -82,11 +126,52 @@ jobs:
           path: front/coverage/
           overwrite: true
 
+  sonarqube-cloud-front:
+    name: SonarQube cloud scan - Front
+    # if: ${{ github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-26.04
+    needs: [tests-front]
+    continue-on-error: true
+    env:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}
+      SONAR_ORGANIZATION: ${{ secrets.SONAR_ORGANIZATION }}
+    steps:
+      - name: installation node ${{env.NODE_VERSION}}
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version: ${{env.NODE_VERSION}}
+          # cache: 'npm' # cache entre chaque run 
+          # c'est un sous dossier il faut lui préciser le fichier à vérifier pour les caches hit
+          # cache-dependency-path: front/package-lock.json
+
+      - name: installation chrome
+        uses: browser-actions/setup-chrome@2e1d749697dd1612b833dba4a722266286fbefcd # v2.1.2
+
+      - name: checkout 
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1
+
+      - name: front - build
+        # commandes en une ligne pour gestion du cache
+        run: cd front && npm ci && npx ng build
+
+      # Checks
+      - name: SonarQube Scan - front
+        uses: SonarSource/sonarcloud-github-action@22918119ff8e1ca75a623e15c8296b6ea4fbe28f # v8.2.1
+        with:
+          projectBaseDir: front
+          args: >
+            -Dsonar.projectKey=${{ env.SONAR_PROJECT_KEY }}
+            -Dsonar.organization=${{ env.SONAR_ORGANIZATION }}
+            -Dsonar.sources=src
+        env:
+          SONAR_TOKEN: ${{ env.SONAR_TOKEN }}
+
   # récupération de la version
   release:
     runs-on: ubuntu-latest
     needs: [tests-front, tests-back]
-    if: ${{ github.ref == 'refs/heads/main' }}
+    # if: ${{ github.ref == 'refs/heads/main' }}
     permissions:
       contents: write  # Nécessaire pour créer une release et un tag
       issues: write
