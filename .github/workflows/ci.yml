@@ -239,10 +239,13 @@ jobs:
           file: ./Dockerfile
           target: standalone
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: |
+            ghcr.io/${{ github.repository }}-standalone:${{ needs.release.outputs.new_version }}
+            ghcr.io/${{ github.repository }}-standalone:latest
+            ghcr.io/${{ github.repository }}-standalone:${{ github.sha }}
           labels: ${{ steps.meta.outputs.labels }}
       
-      - name: Sleep for 60 seconds
+      - name: Sleep for 60 seconds to respect rate limit
         run: sleep 60s
         shell: bash
 
@@ -253,10 +256,13 @@ jobs:
           file: ./Dockerfile
           target: back 
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: |
+            ghcr.io/${{ github.repository }}-back:${{ needs.release.outputs.new_version }}
+            ghcr.io/${{ github.repository }}-back:latest
+            ghcr.io/${{ github.repository }}-back:${{ github.sha }}
           labels: ${{ steps.meta.outputs.labels }}
 
-      - name: Sleep for 60 seconds
+      - name: Sleep for 60 seconds to respect rate limit
         run: sleep 60s
         shell: bash
 
@@ -267,5 +273,8 @@ jobs:
           file: ./Dockerfile
           target: front
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: |
+            ghcr.io/${{ github.repository }}-front:${{ needs.release.outputs.new_version }}
+            ghcr.io/${{ github.repository }}-front:latest
+            ghcr.io/${{ github.repository }}-front:${{ github.sha }}
           labels: ${{ steps.meta.outputs.labels }}
