@@ -1,4 +1,4 @@
-name: CI BACK
+name: CI Back
 # TODO: activer le cache
 
 # security : par défaut droit de lecture uniquement ( moindre privilège )
