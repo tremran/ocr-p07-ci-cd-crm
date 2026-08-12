@@ -11,9 +11,8 @@ permissions:
 on: 
   workflow_call:
   push:
-    branches: [ci-tests, main]
-    paths:
-      - '.github/**'
+  pull_requests:
+    -branches: [main]
 
 env:
   JAVA_VERSION: '17' # used in back app
@@ -65,6 +64,8 @@ jobs:
       # Récupère le code
       - name: Checkout
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1
+        with:
+          fetch-depth: 0
 
       - name: install java ${{env.JAVA_VERSION}}
         uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
@@ -119,13 +120,6 @@ jobs:
         # commandes en une ligne pour gestion du cache
         run: cd front && npm ci && npx ng test --code-coverage --watch=false --browsers=ChromeHeadless
 
-      - name: front - publication des sources
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
-        with:
-          name: test-results-front
-          path: front/coverage/
-          overwrite: true
-
       - name: front - publication des rapports de couverture et de test
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
@@ -157,6 +151,8 @@ jobs:
 
       - name: checkout 
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1
+        with:
+          fetch-depth: 0
 
       - name: front - build
         # commandes en une ligne pour gestion du cache
@@ -245,7 +241,7 @@ jobs:
             ghcr.io/${{ github.repository }}-standalone:${{ github.sha }}
           labels: ${{ steps.meta.outputs.labels }}
       
-      - name: Sleep for 60 seconds to respect rate limit
+      - name: Sleep for 60 seconds to respect github rate limit
         run: sleep 60s
         shell: bash
 
@@ -262,7 +258,7 @@ jobs:
             ghcr.io/${{ github.repository }}-back:${{ github.sha }}
           labels: ${{ steps.meta.outputs.labels }}
 
-      - name: Sleep for 60 seconds to respect rate limit
+      - name: Sleep for 60 seconds to respect github rate limit
         run: sleep 60s
         shell: bash
 

@@ -1,0 +1,13 @@
+services:
+  back:
+    image: "ghcr.io/tremran/ocr-p07-ci-cd-crm-back:${APP_LABEL}"
+    ports:
+      - "8080:8080"
+
+  front:
+    image: ghcr.io/tremran/ocr-p07-ci-cd-crm-back:${APP_LABEL}
+    depends_on:
+      - back
+    ports:
+      - "80:80"
+      - "443:443"

@@ -1,0 +1,19 @@
+services:
+  back:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: back
+    ports:
+      - "8080:8080"
+
+  front:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: front
+    depends_on:
+      - back
+    ports:
+      - "80:80"
+      - "443:443"
