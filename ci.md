@@ -99,18 +99,49 @@ A chaque push sur main ET si une nouvelle version est détecté ( en utilisant l
 
 Les images publiées sont taguées comme `latest`, avec le `sha` du commit et la version de l'application
 
+#### Livraison
+
+On peut utiliser docker compose pour installer les services sur le serveur de production.
+
+> prérequis : 
+> - docker est disponible sur le serveur
+> - l'image a été build et est disponible sur ghcr
+
+```sh
+# Accéder au serveur
+ssh <user>@<server_name>
+# créer un fichier docker-compose.yml
+touch docker-compose.yml
+# avec un éditeur de texte copier coller le contenu de `docker-compose-prod.yml` dans un fichier `docker-compose`
+# sauvegarder le fichier
+# dans le terminal taper la commande
+APP_LABEL=latest docker compose up -d --pull=always
+```
+
+#### Déploiement en prod
+
 Pour déployer les nouvelles images sur le serveur de production, il sera possible d'utiliser les commandes suivantes :
 
 ```sh
 # connexion au serveur de prod
 ssh <user>@<prod_server_name>
-# le fichier docker-compose-prod.yml est déjà sur le serveur et renommé docker-compose.yml
+# le fichier docker-compose.yml est déjà sur le serveur cf la partie "Livraison"
 # arrete l'instance actuelle
 docker compose down
-APP_LABEL=latest docker compose -d up --build
+APP_LABEL=latest docker compose up -d --pull=always
+```
+
+#### Rollback
+
+```sh
 ## en cas d'erreur
 # arreter les container en cours
-APP_LABEL=latest docker compose down
+docker compose down
 # relancer avec l'ancienne version
-APP_LABEL=1.1.2 docker -d compose up
+APP_LABEL=1.1.2 docker compose up -d --pull=always
 ```
+
+### Plan de sauvegarde
+
+- BDD : sauvegarde **quotidienne** du volume docker où la BDD est persistée ( non applicable actuellement car la BDD est en mémoire )
+- Toute la configuration de l'application est sauvegardée sur github
