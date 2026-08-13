@@ -1,0 +1,23 @@
+filebeat.inputs:
+  - type: filestream
+    id: microcrm-back-logs
+    enabled: true
+    paths:
+      - /var/log/microcrm/back/*.log
+    fields_under_root: true
+    fields:
+      app: microcrm-back
+      source_type: springboot
+
+  - type: filestream
+    id: microcrm-front-logs
+    enabled: true
+    paths:
+      - /var/log/microcrm/front/*.log
+    fields_under_root: true
+    fields:
+      app: microcrm-front
+      source_type: caddy
+
+output.logstash:
+  hosts: ["logstash:5044"]
