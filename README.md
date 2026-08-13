@@ -169,6 +169,17 @@ Les fichiers de logs se remplissent localement et Filebeat les envoie vers Logst
 - Creer un Data View sur `microcrm-logs-*`
 - Utiliser Discover pour consulter les logs front/back
 
+![dashboard kibana](./misc/images/kibana_dashboard.png)
+
+#### Initialiser le dashboard Kibana
+
+```sh
+cd elk
+./kibana/setup-dashboard.sh
+```
+
+Dashboard genere: `http://localhost:5601/app/dashboards#/view/microcrm-logs-dashboard`
+
 #### Arret
 
 ```sh
