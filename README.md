@@ -110,6 +110,76 @@ npm start
 
 Puis ouvrir l'URL http://localhost:4200 dans votre navigateur.
 
+### Observabilite locale avec ELK
+
+Cette configuration locale permet de:
+
+- ecrire les logs front dans un fichier texte via Caddy;
+- ecrire les logs back dans un fichier texte via Spring Boot;
+- collecter ces logs avec Filebeat;
+- les agreger dans Elasticsearch via Logstash;
+- visualiser l'etat et les donnees dans Kibana.
+
+#### Emplacement des logs
+
+- Front: `logs/front/access.log`
+- Back: `logs/back/microcrm.log`
+
+#### Lancer les applications (front + back)
+
+```sh
+docker compose up --build -d
+```
+
+#### Lancer ELK
+
+```sh
+cd elk
+docker compose up -d
+```
+
+#### Verifier les etats
+
+```sh
+# etat des conteneurs applicatifs
+docker compose ps
+
+# etat des conteneurs ELK
+cd elk
+docker compose ps
+
+# sante elasticsearch
+curl -s http://localhost:9200/_cluster/health?pretty
+
+# stats logstash
+curl -s http://localhost:9600/?pretty
+```
+
+#### Generer des logs de test
+
+- Ouvrir l'application sur `https://localhost`
+- Naviguer entre les pages et effectuer quelques actions CRUD
+- Appeler l'API sur `http://localhost:8080/persons`
+
+Les fichiers de logs se remplissent localement et Filebeat les envoie vers Logstash/Elasticsearch.
+
+#### Visualiser dans Kibana
+
+- Ouvrir `http://localhost:5601`
+- Creer un Data View sur `microcrm-logs-*`
+- Utiliser Discover pour consulter les logs front/back
+
+#### Arret
+
+```sh
+# arret app
+docker compose down
+
+# arret elk
+cd elk
+docker compose down
+```
+
 ### Exécution des tests
 
 #### Client

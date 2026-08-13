@@ -144,4 +144,4 @@ APP_LABEL=1.1.2 docker compose up -d --pull=always
 ### Plan de sauvegarde
 
 - BDD : sauvegarde **quotidienne** du volume docker où la BDD est persistée ( non applicable actuellement car la BDD est en mémoire )
-- Toute la configuration de l'application est sauvegardée sur github
+- Toute la configuration de l'application est sauvegardée à chaque push sur github

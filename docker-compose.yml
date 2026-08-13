@@ -6,6 +6,8 @@ services:
       target: back
     ports:
       - "8080:8080"
+    volumes:
+      - ./logs/back:/app/logs
 
   front:
     build:
@@ -17,3 +19,5 @@ services:
     ports:
       - "80:80"
       - "443:443"
+    volumes:
+      - ./logs/front:/var/log/caddy

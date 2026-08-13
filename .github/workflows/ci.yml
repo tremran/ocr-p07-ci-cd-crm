@@ -241,8 +241,8 @@ jobs:
             ghcr.io/${{ github.repository }}-standalone:${{ github.sha }}
           labels: ${{ steps.meta.outputs.labels }}
       
-      - name: Sleep for 60 seconds to respect github rate limit
-        run: sleep 60s
+      - name: Sleep for 15 seconds to respect github rate limit
+        run: sleep 15s
         shell: bash
 
       - name: Build and push Docker back image
@@ -258,8 +258,8 @@ jobs:
             ghcr.io/${{ github.repository }}-back:${{ github.sha }}
           labels: ${{ steps.meta.outputs.labels }}
 
-      - name: Sleep for 60 seconds to respect github rate limit
-        run: sleep 60s
+      - name: Sleep for 15 seconds to respect github rate limit
+        run: sleep 15s
         shell: bash
 
       - name: Build and push Docker front image

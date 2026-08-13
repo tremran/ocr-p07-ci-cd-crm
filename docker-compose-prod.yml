@@ -1,11 +1,12 @@
 services:
   back:
     image: "ghcr.io/tremran/ocr-p07-ci-cd-crm-back:${APP_LABEL}"
+
     ports:
       - "8080:8080"
 
   front:
-    image: ghcr.io/tremran/ocr-p07-ci-cd-crm-back:${APP_LABEL}
+    image: ghcr.io/tremran/ocr-p07-ci-cd-crm-front:${APP_LABEL}
     depends_on:
       - back
     ports:
